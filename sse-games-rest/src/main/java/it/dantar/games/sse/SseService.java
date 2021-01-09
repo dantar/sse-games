@@ -2,9 +2,11 @@ package it.dantar.games.sse;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +33,8 @@ public class SseService {
 	
 	@Scheduled(fixedDelayString = "${service.ping.delay}")
 	public void refreshSse() {
-		try {
-			this.emitters.keySet().stream()
-			.forEach(k -> this.broadcastJson(k, PING));			
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
+		this.emitters.keySet().stream()
+		.forEach(k -> this.broadcastJson(k, PING));			
 	}
 
 	public void broadcastJson(String gameId, Object data) {
@@ -77,6 +75,21 @@ public class SseService {
 		});
 		emitters.get(gameId).add(sse);
 		return sse;
+	}
+
+	public String generateGameId() {
+		String result = null;
+		Random random = new Random(new Date().getTime());
+		while (result == null || this.emitters.containsKey(result)) {
+			result = "";
+			for (int i = 0; i < 6; i++) {
+				int max = 10;
+				int min = i==0?1:0;
+				result = result + (random.nextInt(max - min) + min);
+			}
+		}
+		this.emitters.put(result, new ArrayList<>());
+		return result;
 	}
 
 }

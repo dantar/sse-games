@@ -1,5 +1,8 @@
 package it.dantar.games.sse;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +24,13 @@ public class SseController {
 		return true;
 	}
 
+	@PostMapping("/games/new")
+	public Map<String, String> postNewGame() {
+		Map<String, String> result = new HashMap<String, String>();
+		result.put("game", sseService.generateGameId());
+		return result;
+	}
+	
 	@GetMapping("/games/{gameId}/sse")
 	public SseEmitter playerSse(@PathVariable String gameId) {
 		return sseService.sse(gameId);
